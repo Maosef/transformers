@@ -644,11 +644,11 @@ class _ScikitCompat(ABC):
 
 PIPELINE_INIT_ARGS = r"""
     Arguments:
-        model (:class:`~transformers.PreTrainedModel` or :class:`~transformers.TFPreTrainedModel`):
+        model (:obj:`~transformers.PreTrainedModel` or :obj:`~transformers.TFPreTrainedModel`):
             The model that will be used by the pipeline to make predictions. This needs to be a model inheriting from
             :class:`~transformers.PreTrainedModel` for PyTorch and :class:`~transformers.TFPreTrainedModel` for
             TensorFlow.
-        tokenizer (:class:`~transformers.PreTrainedTokenizer`):
+        tokenizer (:obj:`~transformers.PreTrainedTokenizer`):
             The tokenizer that will be used by the pipeline to encode data for the model. This object inherits from
             :class:`~transformers.PreTrainedTokenizer`.
         modelcard (:obj:`str` or :class:`~transformers.ModelCard`, `optional`):
@@ -747,14 +747,9 @@ if is_torch_available():
             else:
                 loader_batched = {}
                 for k, element in self._loader_batch_data.items():
-                    if k in {"hidden_states", "past_key_values", "attentions"} and isinstance(element, tuple):
-                        if isinstance(element[0], torch.Tensor):
-                            loader_batched[k] = tuple(el[self._loader_batch_index].unsqueeze(0) for el in element)
-                        elif isinstance(element[0], np.ndarray):
-                            loader_batched[k] = tuple(
-                                np.expand_dims(el[self._loader_batch_index], 0) for el in element
-                            )
-                    elif isinstance(element[self._loader_batch_index], torch.Tensor):
+                    if k == "past_key_values":
+                        continue
+                    if isinstance(element[self._loader_batch_index], torch.Tensor):
                         loader_batched[k] = element[self._loader_batch_index].unsqueeze(0)
                     elif isinstance(element[self._loader_batch_index], np.ndarray):
                         loader_batched[k] = np.expand_dims(element[self._loader_batch_index], 0)

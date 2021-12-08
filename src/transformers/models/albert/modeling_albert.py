@@ -219,7 +219,7 @@ class AlbertEmbeddings(nn.Module):
         if version.parse(torch.__version__) > version.parse("1.6.0"):
             self.register_buffer(
                 "token_type_ids",
-                torch.zeros(self.position_ids.size(), dtype=torch.long),
+                torch.zeros(self.position_ids.size(), dtype=torch.long, device=self.position_ids.device),
                 persistent=False,
             )
 
@@ -348,7 +348,7 @@ class AlbertAttention(nn.Module):
                 attention_scores = attention_scores + relative_position_scores_query + relative_position_scores_key
 
         # Normalize the attention scores to probabilities.
-        attention_probs = nn.functional.softmax(attention_scores, dim=-1)
+        attention_probs = nn.Softmax(dim=-1)(attention_scores)
 
         # This is actually dropping out entire tokens to attend to, which might
         # seem a bit unusual, but is taken from the original Transformer paper.
@@ -440,29 +440,43 @@ class AlbertTransformer(nn.Module):
         self.config = config
         self.embedding_hidden_mapping_in = nn.Linear(config.embedding_size, config.hidden_size)
         self.albert_layer_groups = nn.ModuleList([AlbertLayerGroup(config) for _ in range(config.num_hidden_groups)])
+        self.eval_layer = self.config.num_hidden_layers
+
 
     def forward(
         self,
-        hidden_states,
+        hidden_states=None,
         attention_mask=None,
         head_mask=None,
         output_attentions=False,
         output_hidden_states=False,
         return_dict=True,
+        eval_layer=None,
+        intermediate_output=torch.Tensor(),
     ):
-        hidden_states = self.embedding_hidden_mapping_in(hidden_states)
+        if not intermediate_output.shape[0]:
+            hidden_states = self.embedding_hidden_mapping_in(hidden_states)
+        else:
+            hidden_states=intermediate_output
 
         all_hidden_states = (hidden_states,) if output_hidden_states else None
         all_attentions = () if output_attentions else None
 
         head_mask = [None] * self.config.num_hidden_layers if head_mask is None else head_mask
 
-        for i in range(self.config.num_hidden_layers):
+        state_transitions = 0
+        # for i in range(self.config.num_hidden_layers):
+        # for i in range(self.eval_layer):
+        if eval_layer == None:
+            eval_layer = self.eval_layer
+
+        for i in range(eval_layer):
             # Number of layers in a hidden group
             layers_per_group = int(self.config.num_hidden_layers / self.config.num_hidden_groups)
 
             # Index of the hidden group
             group_idx = int(i / (self.config.num_hidden_layers / self.config.num_hidden_groups))
+            group_idx = min(group_idx, self.config.num_hidden_groups-1)
 
             layer_group_output = self.albert_layer_groups[group_idx](
                 hidden_states,
@@ -478,6 +492,8 @@ class AlbertTransformer(nn.Module):
 
             if output_hidden_states:
                 all_hidden_states = all_hidden_states + (hidden_states,)
+
+            state_transitions += 1
 
         if not return_dict:
             return tuple(v for v in [hidden_states, all_hidden_states, all_attentions] if v is not None)
@@ -638,8 +654,7 @@ class AlbertModel(AlbertPreTrainedModel):
             self.pooler = None
             self.pooler_activation = None
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     def get_input_embeddings(self):
         return self.embeddings.word_embeddings
@@ -682,6 +697,8 @@ class AlbertModel(AlbertPreTrainedModel):
         output_attentions=None,
         output_hidden_states=None,
         return_dict=None,
+        eval_layer=None,
+        intermediate_output=torch.Tensor(),
     ):
         output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
         output_hidden_states = (
@@ -716,17 +733,30 @@ class AlbertModel(AlbertPreTrainedModel):
         extended_attention_mask = (1.0 - extended_attention_mask) * -10000.0
         head_mask = self.get_head_mask(head_mask, self.config.num_hidden_layers)
 
-        embedding_output = self.embeddings(
-            input_ids, position_ids=position_ids, token_type_ids=token_type_ids, inputs_embeds=inputs_embeds
-        )
-        encoder_outputs = self.encoder(
-            embedding_output,
-            extended_attention_mask,
-            head_mask=head_mask,
-            output_attentions=output_attentions,
-            output_hidden_states=output_hidden_states,
-            return_dict=return_dict,
-        )
+        if not intermediate_output.shape[0]:
+            embedding_output = self.embeddings(
+                input_ids, position_ids=position_ids, token_type_ids=token_type_ids, inputs_embeds=inputs_embeds
+            )
+            encoder_outputs = self.encoder(
+                embedding_output,
+                extended_attention_mask,
+                head_mask=head_mask,
+                output_attentions=output_attentions,
+                output_hidden_states=output_hidden_states,
+                return_dict=return_dict,
+                eval_layer=eval_layer,
+            )
+        else:
+            encoder_outputs = self.encoder(
+                None,
+                extended_attention_mask,
+                head_mask=head_mask,
+                output_attentions=output_attentions,
+                output_hidden_states=output_hidden_states,
+                return_dict=return_dict,
+                eval_layer=eval_layer,
+                intermediate_output=intermediate_output,
+            )
 
         sequence_output = encoder_outputs[0]
 
@@ -758,8 +788,7 @@ class AlbertForPreTraining(AlbertPreTrainedModel):
         self.predictions = AlbertMLMHead(config)
         self.sop_classifier = AlbertSOPHead(config)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     def get_output_embeddings(self):
         return self.predictions.decoder
@@ -905,8 +934,7 @@ class AlbertForMaskedLM(AlbertPreTrainedModel):
         self.albert = AlbertModel(config, add_pooling_layer=False)
         self.predictions = AlbertMLMHead(config)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     def get_output_embeddings(self):
         return self.predictions.decoder
@@ -994,8 +1022,7 @@ class AlbertForSequenceClassification(AlbertPreTrainedModel):
         self.dropout = nn.Dropout(config.classifier_dropout_prob)
         self.classifier = nn.Linear(config.hidden_size, self.config.num_labels)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     @add_start_docstrings_to_model_forward(ALBERT_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
     @add_code_sample_docstrings(
@@ -1101,8 +1128,7 @@ class AlbertForTokenClassification(AlbertPreTrainedModel):
         self.dropout = nn.Dropout(classifier_dropout_prob)
         self.classifier = nn.Linear(config.hidden_size, self.config.num_labels)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     @add_start_docstrings_to_model_forward(ALBERT_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
     @add_code_sample_docstrings(
@@ -1192,8 +1218,7 @@ class AlbertForQuestionAnswering(AlbertPreTrainedModel):
         self.albert = AlbertModel(config, add_pooling_layer=False)
         self.qa_outputs = nn.Linear(config.hidden_size, config.num_labels)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     @add_start_docstrings_to_model_forward(ALBERT_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
     @add_code_sample_docstrings(
@@ -1215,6 +1240,8 @@ class AlbertForQuestionAnswering(AlbertPreTrainedModel):
         output_attentions=None,
         output_hidden_states=None,
         return_dict=None,
+        eval_layer=None,
+        intermediate_output=torch.Tensor(),
     ):
         r"""
         start_positions (:obj:`torch.LongTensor` of shape :obj:`(batch_size,)`, `optional`):
@@ -1238,6 +1265,8 @@ class AlbertForQuestionAnswering(AlbertPreTrainedModel):
             output_attentions=output_attentions,
             output_hidden_states=output_hidden_states,
             return_dict=return_dict,
+            eval_layer=eval_layer,
+            intermediate_output=intermediate_output,
         )
 
         sequence_output = outputs[0]
@@ -1292,8 +1321,7 @@ class AlbertForMultipleChoice(AlbertPreTrainedModel):
         self.dropout = nn.Dropout(config.classifier_dropout_prob)
         self.classifier = nn.Linear(config.hidden_size, 1)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     @add_start_docstrings_to_model_forward(ALBERT_INPUTS_DOCSTRING.format("batch_size, num_choices, sequence_length"))
     @add_code_sample_docstrings(

@@ -233,7 +233,7 @@ class ModuleUtilsMixin:
 
         if self.dtype == torch.float16:
             encoder_extended_attention_mask = (1.0 - encoder_extended_attention_mask) * -1e4
-        elif self.dtype in [torch.bfloat16, torch.float32]:
+        elif self.dtype == torch.float32:
             encoder_extended_attention_mask = (1.0 - encoder_extended_attention_mask) * -1e9
         else:
             raise ValueError(
@@ -412,6 +412,17 @@ class ModuleUtilsMixin:
         return 6 * self.estimate_tokens(input_dict) * self.num_parameters(exclude_embeddings=exclude_embeddings)
 
 
+def gradient_checkpointing_hook(module, _):
+    # Hook to enable backward compatibility for gradient checkpointing. Will be removed once all models have a
+    # proper post_init method.
+    if getattr(module.config, "gradient_checkpointing", False):
+        module.gradient_checkpointing_enable()
+        # Remove the attribute now that is has been consumed, so it's no saved in the config.
+        delattr(module.config, "gradient_checkpointing")
+    # The hook will remove itself after the first execution
+    module._gradient_checkpointing_hook.remove()
+
+
 class PreTrainedModel(nn.Module, ModuleUtilsMixin, GenerationMixin, PushToHubMixin):
     r"""
     Base class for all models.
@@ -479,20 +490,8 @@ class PreTrainedModel(nn.Module, ModuleUtilsMixin, GenerationMixin, PushToHubMix
         # Save config and origin of the pretrained weights if given in model
         self.config = config
         self.name_or_path = config.name_or_path
-
-    def post_init(self):
-        """
-        A method executed at the end of each Transformer model initialization, to execute code that needs the model's
-        modules properly initialized (such as weight initialization).
-        """
-        self.init_weights()
-        self._backward_compatibility_gradient_checkpointing()
-
-    def _backward_compatibility_gradient_checkpointing(self):
-        if self.supports_gradient_checkpointing and getattr(self.config, "gradient_checkpointing", False):
-            self.gradient_checkpointing_enable()
-            # Remove the attribute now that is has been consumed, so it's no saved in the config.
-            delattr(self.config, "gradient_checkpointing")
+        if self.supports_gradient_checkpointing:
+            self._gradient_checkpointing_hook = self.register_forward_pre_hook(gradient_checkpointing_hook)
 
     @classmethod
     def _from_config(cls, config, **kwargs):

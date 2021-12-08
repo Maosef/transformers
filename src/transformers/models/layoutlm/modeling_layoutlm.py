@@ -235,7 +235,7 @@ class LayoutLMSelfAttention(nn.Module):
             attention_scores = attention_scores + attention_mask
 
         # Normalize the attention scores to probabilities.
-        attention_probs = nn.functional.softmax(attention_scores, dim=-1)
+        attention_probs = nn.Softmax(dim=-1)(attention_scores)
 
         # This is actually dropping out entire tokens to attend to, which might
         # seem a bit unusual, but is taken from the original Transformer paper.
@@ -714,8 +714,7 @@ class LayoutLMModel(LayoutLMPreTrainedModel):
         self.encoder = LayoutLMEncoder(config)
         self.pooler = LayoutLMPooler(config)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     def get_input_embeddings(self):
         return self.embeddings.word_embeddings
@@ -857,8 +856,7 @@ class LayoutLMForMaskedLM(LayoutLMPreTrainedModel):
         self.layoutlm = LayoutLMModel(config)
         self.cls = LayoutLMOnlyMLMHead(config)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     def get_input_embeddings(self):
         return self.layoutlm.embeddings.word_embeddings
@@ -981,8 +979,7 @@ class LayoutLMForSequenceClassification(LayoutLMPreTrainedModel):
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
         self.classifier = nn.Linear(config.hidden_size, config.num_labels)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     def get_input_embeddings(self):
         return self.layoutlm.embeddings.word_embeddings
@@ -1112,8 +1109,7 @@ class LayoutLMForTokenClassification(LayoutLMPreTrainedModel):
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
         self.classifier = nn.Linear(config.hidden_size, config.num_labels)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     def get_input_embeddings(self):
         return self.layoutlm.embeddings.word_embeddings

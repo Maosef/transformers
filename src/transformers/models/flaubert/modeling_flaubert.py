@@ -336,8 +336,7 @@ class FlaubertWithLMHeadModel(XLMWithLMHeadModel):
     def __init__(self, config):
         super().__init__(config)
         self.transformer = FlaubertModel(config)
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
 
 @add_start_docstrings(
@@ -358,8 +357,7 @@ class FlaubertForSequenceClassification(XLMForSequenceClassification):
     def __init__(self, config):
         super().__init__(config)
         self.transformer = FlaubertModel(config)
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
 
 @add_start_docstrings(
@@ -380,8 +378,7 @@ class FlaubertForTokenClassification(XLMForTokenClassification):
     def __init__(self, config):
         super().__init__(config)
         self.transformer = FlaubertModel(config)
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
 
 @add_start_docstrings(
@@ -402,8 +399,7 @@ class FlaubertForQuestionAnsweringSimple(XLMForQuestionAnsweringSimple):
     def __init__(self, config):
         super().__init__(config)
         self.transformer = FlaubertModel(config)
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
 
 @add_start_docstrings(
@@ -424,8 +420,7 @@ class FlaubertForQuestionAnswering(XLMForQuestionAnswering):
     def __init__(self, config):
         super().__init__(config)
         self.transformer = FlaubertModel(config)
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
 
 @add_start_docstrings(
@@ -446,5 +441,4 @@ class FlaubertForMultipleChoice(XLMForMultipleChoice):
     def __init__(self, config):
         super().__init__(config)
         self.transformer = FlaubertModel(config)
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()

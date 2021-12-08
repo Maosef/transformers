@@ -180,8 +180,7 @@ class DPREncoder(DPRPreTrainedModel):
         self.projection_dim = config.projection_dim
         if self.projection_dim > 0:
             self.encode_proj = nn.Linear(self.bert_model.config.hidden_size, config.projection_dim)
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     def forward(
         self,
@@ -233,8 +232,7 @@ class DPRSpanPredictor(DPRPreTrainedModel):
         self.encoder = DPREncoder(config)
         self.qa_outputs = nn.Linear(self.encoder.embeddings_size, 2)
         self.qa_classifier = nn.Linear(self.encoder.embeddings_size, 1)
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     def forward(
         self,
@@ -449,8 +447,7 @@ class DPRContextEncoder(DPRPretrainedContextEncoder):
         super().__init__(config)
         self.config = config
         self.ctx_encoder = DPREncoder(config)
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     @add_start_docstrings_to_model_forward(DPR_ENCODERS_INPUTS_DOCSTRING)
     @replace_return_docstrings(output_type=DPRContextEncoderOutput, config_class=_CONFIG_FOR_DOC)
@@ -528,8 +525,7 @@ class DPRQuestionEncoder(DPRPretrainedQuestionEncoder):
         super().__init__(config)
         self.config = config
         self.question_encoder = DPREncoder(config)
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     @add_start_docstrings_to_model_forward(DPR_ENCODERS_INPUTS_DOCSTRING)
     @replace_return_docstrings(output_type=DPRQuestionEncoderOutput, config_class=_CONFIG_FOR_DOC)
@@ -606,8 +602,7 @@ class DPRReader(DPRPretrainedReader):
         super().__init__(config)
         self.config = config
         self.span_predictor = DPRSpanPredictor(config)
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     @add_start_docstrings_to_model_forward(DPR_READER_INPUTS_DOCSTRING)
     @replace_return_docstrings(output_type=DPRReaderOutput, config_class=_CONFIG_FOR_DOC)

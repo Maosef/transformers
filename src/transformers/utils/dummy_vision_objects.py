@@ -36,11 +36,6 @@ class DetrFeatureExtractor:
         requires_backends(self, ["vision"])
 
 
-class ImageGPTFeatureExtractor:
-    def __init__(self, *args, **kwargs):
-        requires_backends(self, ["vision"])
-
-
 class LayoutLMv2FeatureExtractor:
     def __init__(self, *args, **kwargs):
         requires_backends(self, ["vision"])
@@ -62,11 +57,6 @@ class LayoutXLMProcessor:
     @classmethod
     def from_pretrained(cls, *args, **kwargs):
         requires_backends(cls, ["vision"])
-
-
-class PerceiverFeatureExtractor:
-    def __init__(self, *args, **kwargs):
-        requires_backends(self, ["vision"])
 
 
 class SegformerFeatureExtractor:

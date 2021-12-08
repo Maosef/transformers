@@ -56,13 +56,6 @@ class TextDatasetForNextSentencePrediction:
     def __init__(self, *args, **kwargs):
         requires_backends(self, ["torch"])
 
-    @classmethod
-    def from_pretrained(cls, *args, **kwargs):
-        requires_backends(cls, ["torch"])
-
-    def forward(self, *args, **kwargs):
-        requires_backends(self, ["torch"])
-
 
 class BeamScorer:
     def __init__(self, *args, **kwargs):
@@ -339,9 +332,6 @@ def load_tf_weights_in_albert(*args, **kwargs):
 
 
 MODEL_FOR_AUDIO_CLASSIFICATION_MAPPING = None
-
-
-MODEL_FOR_CAUSAL_IMAGE_MODELING_MAPPING = None
 
 
 MODEL_FOR_CAUSAL_LM_MAPPING = None
@@ -791,13 +781,6 @@ class BertForMultipleChoice:
 
 class BertForNextSentencePrediction:
     def __init__(self, *args, **kwargs):
-        requires_backends(self, ["torch"])
-
-    @classmethod
-    def from_pretrained(cls, *args, **kwargs):
-        requires_backends(cls, ["torch"])
-
-    def forward(self, *args, **kwargs):
         requires_backends(self, ["torch"])
 
 
@@ -2123,13 +2106,6 @@ class FNetForNextSentencePrediction:
     def __init__(self, *args, **kwargs):
         requires_backends(self, ["torch"])
 
-    @classmethod
-    def from_pretrained(cls, *args, **kwargs):
-        requires_backends(cls, ["torch"])
-
-    def forward(self, *args, **kwargs):
-        requires_backends(self, ["torch"])
-
 
 class FNetForPreTraining:
     def __init__(self, *args, **kwargs):
@@ -2494,18 +2470,6 @@ class GPTJForCausalLM:
         requires_backends(self, ["torch"])
 
 
-class GPTJForQuestionAnswering:
-    def __init__(self, *args, **kwargs):
-        requires_backends(self, ["torch"])
-
-    @classmethod
-    def from_pretrained(cls, *args, **kwargs):
-        requires_backends(cls, ["torch"])
-
-    def forward(self, *args, **kwargs):
-        requires_backends(self, ["torch"])
-
-
 class GPTJForSequenceClassification:
     def __init__(self, *args, **kwargs):
         requires_backends(self, ["torch"])
@@ -2671,54 +2635,6 @@ class IBertPreTrainedModel:
 
     def forward(self, *args, **kwargs):
         requires_backends(self, ["torch"])
-
-
-IMAGEGPT_PRETRAINED_MODEL_ARCHIVE_LIST = None
-
-
-class ImageGPTForCausalImageModeling:
-    def __init__(self, *args, **kwargs):
-        requires_backends(self, ["torch"])
-
-    @classmethod
-    def from_pretrained(cls, *args, **kwargs):
-        requires_backends(cls, ["torch"])
-
-    def forward(self, *args, **kwargs):
-        requires_backends(self, ["torch"])
-
-
-class ImageGPTForImageClassification:
-    def __init__(self, *args, **kwargs):
-        requires_backends(self, ["torch"])
-
-
-class ImageGPTModel:
-    def __init__(self, *args, **kwargs):
-        requires_backends(self, ["torch"])
-
-    @classmethod
-    def from_pretrained(cls, *args, **kwargs):
-        requires_backends(cls, ["torch"])
-
-    def forward(self, *args, **kwargs):
-        requires_backends(self, ["torch"])
-
-
-class ImageGPTPreTrainedModel:
-    def __init__(self, *args, **kwargs):
-        requires_backends(self, ["torch"])
-
-    @classmethod
-    def from_pretrained(cls, *args, **kwargs):
-        requires_backends(cls, ["torch"])
-
-    def forward(self, *args, **kwargs):
-        requires_backends(self, ["torch"])
-
-
-def load_tf_weights_in_imagegpt(*args, **kwargs):
-    requires_backends(load_tf_weights_in_imagegpt, ["torch"])
 
 
 LAYOUTLM_PRETRAINED_MODEL_ARCHIVE_LIST = None
@@ -3020,18 +2936,6 @@ class LukeForEntitySpanClassification:
         requires_backends(self, ["torch"])
 
 
-class LukeForMaskedLM:
-    def __init__(self, *args, **kwargs):
-        requires_backends(self, ["torch"])
-
-    @classmethod
-    def from_pretrained(cls, *args, **kwargs):
-        requires_backends(cls, ["torch"])
-
-    def forward(self, *args, **kwargs):
-        requires_backends(self, ["torch"])
-
-
 class LukeModel:
     def __init__(self, *args, **kwargs):
         requires_backends(self, ["torch"])
@@ -3302,13 +3206,6 @@ class MegatronBertForNextSentencePrediction:
     def __init__(self, *args, **kwargs):
         requires_backends(self, ["torch"])
 
-    @classmethod
-    def from_pretrained(cls, *args, **kwargs):
-        requires_backends(cls, ["torch"])
-
-    def forward(self, *args, **kwargs):
-        requires_backends(self, ["torch"])
-
 
 class MegatronBertForPreTraining:
     def __init__(self, *args, **kwargs):
@@ -3426,13 +3323,6 @@ class MobileBertForMultipleChoice:
 
 class MobileBertForNextSentencePrediction:
     def __init__(self, *args, **kwargs):
-        requires_backends(self, ["torch"])
-
-    @classmethod
-    def from_pretrained(cls, *args, **kwargs):
-        requires_backends(cls, ["torch"])
-
-    def forward(self, *args, **kwargs):
         requires_backends(self, ["torch"])
 
 
@@ -3742,87 +3632,6 @@ class PegasusModel:
 
 
 class PegasusPreTrainedModel:
-    def __init__(self, *args, **kwargs):
-        requires_backends(self, ["torch"])
-
-    @classmethod
-    def from_pretrained(cls, *args, **kwargs):
-        requires_backends(cls, ["torch"])
-
-    def forward(self, *args, **kwargs):
-        requires_backends(self, ["torch"])
-
-
-PERCEIVER_PRETRAINED_MODEL_ARCHIVE_LIST = None
-
-
-class PerceiverForImageClassificationConvProcessing:
-    def __init__(self, *args, **kwargs):
-        requires_backends(self, ["torch"])
-
-
-class PerceiverForImageClassificationFourier:
-    def __init__(self, *args, **kwargs):
-        requires_backends(self, ["torch"])
-
-
-class PerceiverForImageClassificationLearned:
-    def __init__(self, *args, **kwargs):
-        requires_backends(self, ["torch"])
-
-
-class PerceiverForMaskedLM:
-    def __init__(self, *args, **kwargs):
-        requires_backends(self, ["torch"])
-
-    @classmethod
-    def from_pretrained(cls, *args, **kwargs):
-        requires_backends(cls, ["torch"])
-
-    def forward(self, *args, **kwargs):
-        requires_backends(self, ["torch"])
-
-
-class PerceiverForMultimodalAutoencoding:
-    def __init__(self, *args, **kwargs):
-        requires_backends(self, ["torch"])
-
-
-class PerceiverForOpticalFlow:
-    def __init__(self, *args, **kwargs):
-        requires_backends(self, ["torch"])
-
-
-class PerceiverForSequenceClassification:
-    def __init__(self, *args, **kwargs):
-        requires_backends(self, ["torch"])
-
-    @classmethod
-    def from_pretrained(cls, *args, **kwargs):
-        requires_backends(cls, ["torch"])
-
-    def forward(self, *args, **kwargs):
-        requires_backends(self, ["torch"])
-
-
-class PerceiverLayer:
-    def __init__(self, *args, **kwargs):
-        requires_backends(self, ["torch"])
-
-
-class PerceiverModel:
-    def __init__(self, *args, **kwargs):
-        requires_backends(self, ["torch"])
-
-    @classmethod
-    def from_pretrained(cls, *args, **kwargs):
-        requires_backends(cls, ["torch"])
-
-    def forward(self, *args, **kwargs):
-        requires_backends(self, ["torch"])
-
-
-class PerceiverPreTrainedModel:
     def __init__(self, *args, **kwargs):
         requires_backends(self, ["torch"])
 
@@ -4943,18 +4752,6 @@ class UniSpeechSatPreTrainedModel:
 
 
 class VisionEncoderDecoderModel:
-    def __init__(self, *args, **kwargs):
-        requires_backends(self, ["torch"])
-
-    @classmethod
-    def from_pretrained(cls, *args, **kwargs):
-        requires_backends(cls, ["torch"])
-
-    def forward(self, *args, **kwargs):
-        requires_backends(self, ["torch"])
-
-
-class VisionTextDualEncoderModel:
     def __init__(self, *args, **kwargs):
         requires_backends(self, ["torch"])
 

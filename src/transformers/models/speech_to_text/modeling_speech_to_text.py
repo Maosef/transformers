@@ -723,9 +723,8 @@ class Speech2TextEncoder(Speech2TextPreTrainedModel):
         self.layers = nn.ModuleList([Speech2TextEncoderLayer(config) for _ in range(config.encoder_layers)])
         self.layer_norm = nn.LayerNorm(config.d_model)
 
+        self.init_weights()
         self.gradient_checkpointing = False
-        # Initialize weights and apply final processing
-        self.post_init()
 
     def forward(
         self,
@@ -877,9 +876,8 @@ class Speech2TextDecoder(Speech2TextPreTrainedModel):
 
         self.layer_norm = nn.LayerNorm(config.d_model)
 
+        self.init_weights()
         self.gradient_checkpointing = False
-        # Initialize weights and apply final processing
-        self.post_init()
 
     def get_input_embeddings(self):
         return self.embed_tokens
@@ -1132,8 +1130,7 @@ class Speech2TextModel(Speech2TextPreTrainedModel):
         self.encoder = Speech2TextEncoder(config)
         self.decoder = Speech2TextDecoder(config)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     def get_input_embeddings(self):
         return self.decoder.embed_tokens
@@ -1256,8 +1253,7 @@ class Speech2TextForConditionalGeneration(Speech2TextPreTrainedModel):
         self.model = Speech2TextModel(config)
         self.lm_head = nn.Linear(config.d_model, self.config.vocab_size, bias=False)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     def get_encoder(self):
         return self.model.get_encoder()

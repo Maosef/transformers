@@ -658,9 +658,8 @@ class PegasusEncoder(PegasusPreTrainedModel):
         self.layers = nn.ModuleList([PegasusEncoderLayer(config) for _ in range(config.encoder_layers)])
         self.layer_norm = nn.LayerNorm(config.d_model)
 
+        self.init_weights()
         self.gradient_checkpointing = False
-        # Initialize weights and apply final processing
-        self.post_init()
 
     def resize_position_embeddings(self, new_num_position_embeddings: int):
         """
@@ -854,9 +853,8 @@ class PegasusDecoder(PegasusPreTrainedModel):
         self.layers = nn.ModuleList([PegasusDecoderLayer(config) for _ in range(config.decoder_layers)])
         self.layer_norm = nn.LayerNorm(config.d_model)
 
+        self.init_weights()
         self.gradient_checkpointing = False
-        # Initialize weights and apply final processing
-        self.post_init()
 
     def get_input_embeddings(self):
         return self.embed_tokens
@@ -1144,8 +1142,7 @@ class PegasusModel(PegasusPreTrainedModel):
         self.encoder = PegasusEncoder(config, self.shared)
         self.decoder = PegasusDecoder(config, self.shared)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     def get_input_embeddings(self):
         return self.shared
@@ -1296,8 +1293,7 @@ class PegasusForConditionalGeneration(PegasusPreTrainedModel):
         self.register_buffer("final_logits_bias", torch.zeros((1, self.model.shared.num_embeddings)))
         self.lm_head = nn.Linear(config.d_model, self.model.shared.num_embeddings, bias=False)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     def get_encoder(self):
         return self.model.get_encoder()
@@ -1494,8 +1490,7 @@ class PegasusForCausalLM(PegasusPreTrainedModel):
 
         self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     def get_input_embeddings(self):
         return self.model.decoder.embed_tokens

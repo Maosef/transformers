@@ -1747,7 +1747,6 @@ class PreTrainedTokenizerBase(SpecialTokensMixin, PushToHubMixin):
             init_configuration,
             *init_inputs,
             use_auth_token=use_auth_token,
-            cache_dir=cache_dir,
             **kwargs,
         )
 
@@ -1759,7 +1758,6 @@ class PreTrainedTokenizerBase(SpecialTokensMixin, PushToHubMixin):
         init_configuration,
         *init_inputs,
         use_auth_token=None,
-        cache_dir=None,
         **kwargs
     ):
         # We instantiate fast tokenizers based on a slow tokenizer if we don't have access to the tokenizer.json
@@ -1799,11 +1797,7 @@ class PreTrainedTokenizerBase(SpecialTokensMixin, PushToHubMixin):
 
             # Second attempt. If we have not yet found tokenizer_class, let's try to use the config.
             try:
-                config = AutoConfig.from_pretrained(
-                    pretrained_model_name_or_path,
-                    use_auth_token=use_auth_token,
-                    cache_dir=cache_dir,
-                )
+                config = AutoConfig.from_pretrained(pretrained_model_name_or_path, use_auth_token=use_auth_token)
                 config_tokenizer_class = config.tokenizer_class
             except (OSError, ValueError, KeyError):
                 # skip if an error occurred.

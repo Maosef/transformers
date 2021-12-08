@@ -470,13 +470,7 @@ class FeatureExtractionMixin:
             :obj:`str`: String containing all the attributes that make up this feature_extractor instance in JSON
             format.
         """
-        dictionary = self.to_dict()
-
-        for key, value in dictionary.items():
-            if isinstance(value, np.ndarray):
-                dictionary[key] = value.tolist()
-
-        return json.dumps(dictionary, indent=2, sort_keys=True) + "\n"
+        return json.dumps(self.to_dict(), indent=2, sort_keys=True) + "\n"
 
     def to_json_file(self, json_file_path: Union[str, os.PathLike]):
         """

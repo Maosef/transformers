@@ -184,7 +184,7 @@ class MPNetSelfAttention(nn.Module):
             attention_scores = attention_scores + attention_mask
 
         # Normalize the attention scores to probabilities.
-        attention_probs = nn.functional.softmax(attention_scores, dim=-1)
+        attention_probs = nn.Softmax(dim=-1)(attention_scores)
 
         attention_probs = self.dropout(attention_probs)
 
@@ -493,8 +493,7 @@ class MPNetModel(MPNetPreTrainedModel):
         self.encoder = MPNetEncoder(config)
         self.pooler = MPNetPooler(config) if add_pooling_layer else None
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     def get_input_embeddings(self):
         return self.embeddings.word_embeddings
@@ -584,8 +583,7 @@ class MPNetForMaskedLM(MPNetPreTrainedModel):
         self.mpnet = MPNetModel(config, add_pooling_layer=False)
         self.lm_head = MPNetLMHead(config)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     def get_output_embeddings(self):
         return self.lm_head.decoder
@@ -693,8 +691,7 @@ class MPNetForSequenceClassification(MPNetPreTrainedModel):
         self.mpnet = MPNetModel(config, add_pooling_layer=False)
         self.classifier = MPNetClassificationHead(config)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     @add_start_docstrings_to_model_forward(MPNET_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
     @add_code_sample_docstrings(
@@ -788,8 +785,7 @@ class MPNetForMultipleChoice(MPNetPreTrainedModel):
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
         self.classifier = nn.Linear(config.hidden_size, 1)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     @add_start_docstrings_to_model_forward(MPNET_INPUTS_DOCSTRING.format("batch_size, num_choices, sequence_length"))
     @add_code_sample_docstrings(
@@ -881,8 +877,7 @@ class MPNetForTokenClassification(MPNetPreTrainedModel):
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
         self.classifier = nn.Linear(config.hidden_size, config.num_labels)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     @add_start_docstrings_to_model_forward(MPNET_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
     @add_code_sample_docstrings(
@@ -990,8 +985,7 @@ class MPNetForQuestionAnswering(MPNetPreTrainedModel):
         self.mpnet = MPNetModel(config, add_pooling_layer=False)
         self.qa_outputs = nn.Linear(config.hidden_size, config.num_labels)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     @add_start_docstrings_to_model_forward(MPNET_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
     @add_code_sample_docstrings(

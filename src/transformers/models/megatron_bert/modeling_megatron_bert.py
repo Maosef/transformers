@@ -298,7 +298,7 @@ class MegatronBertSelfAttention(nn.Module):
             attention_scores = attention_scores + attention_mask
 
         # Normalize the attention scores to probabilities.
-        attention_probs = nn.functional.softmax(attention_scores, dim=-1)
+        attention_probs = nn.Softmax(dim=-1)(attention_scores)
 
         # This is actually dropping out entire tokens to attend to, which might
         # seem a bit unusual, but is taken from the original Transformer paper.
@@ -857,8 +857,7 @@ class MegatronBertModel(MegatronBertPreTrainedModel):
 
         self.pooler = MegatronBertPooler(config) if add_pooling_layer else None
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     def get_input_embeddings(self):
         return self.embeddings.word_embeddings
@@ -1019,8 +1018,7 @@ class MegatronBertForPreTraining(MegatronBertPreTrainedModel):
         self.bert = MegatronBertModel(config)
         self.cls = MegatronBertPreTrainingHeads(config)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     def get_output_embeddings(self):
         return self.cls.predictions.decoder
@@ -1129,8 +1127,7 @@ class MegatronBertForCausalLM(MegatronBertPreTrainedModel):
         self.bert = MegatronBertModel(config, add_pooling_layer=False)
         self.cls = MegatronBertOnlyMLMHead(config)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     def get_output_embeddings(self):
         return self.cls.predictions.decoder
@@ -1277,8 +1274,7 @@ class MegatronBertForMaskedLM(MegatronBertPreTrainedModel):
         self.bert = MegatronBertModel(config, add_pooling_layer=False)
         self.cls = MegatronBertOnlyMLMHead(config)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     def get_output_embeddings(self):
         return self.cls.predictions.decoder
@@ -1379,8 +1375,7 @@ class MegatronBertForNextSentencePrediction(MegatronBertPreTrainedModel):
         self.bert = MegatronBertModel(config)
         self.cls = MegatronBertOnlyNSPHead(config)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     @add_start_docstrings_to_model_forward(MEGATRON_BERT_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
     @replace_return_docstrings(output_type=NextSentencePredictorOutput, config_class=_CONFIG_FOR_DOC)
@@ -1483,8 +1478,7 @@ class MegatronBertForSequenceClassification(MegatronBertPreTrainedModel):
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
         self.classifier = nn.Linear(config.hidden_size, config.num_labels)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     @add_start_docstrings_to_model_forward(MEGATRON_BERT_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
     @add_code_sample_docstrings(
@@ -1580,8 +1574,7 @@ class MegatronBertForMultipleChoice(MegatronBertPreTrainedModel):
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
         self.classifier = nn.Linear(config.hidden_size, 1)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     @add_start_docstrings_to_model_forward(
         MEGATRON_BERT_INPUTS_DOCSTRING.format("batch_size, num_choices, sequence_length")
@@ -1678,8 +1671,7 @@ class MegatronBertForTokenClassification(MegatronBertPreTrainedModel):
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
         self.classifier = nn.Linear(config.hidden_size, config.num_labels)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     @add_start_docstrings_to_model_forward(MEGATRON_BERT_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
     @add_code_sample_docstrings(
@@ -1769,8 +1761,7 @@ class MegatronBertForQuestionAnswering(MegatronBertPreTrainedModel):
         self.bert = MegatronBertModel(config, add_pooling_layer=False)
         self.qa_outputs = nn.Linear(config.hidden_size, config.num_labels)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     @add_start_docstrings_to_model_forward(MEGATRON_BERT_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
     @add_code_sample_docstrings(

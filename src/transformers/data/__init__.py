@@ -24,7 +24,6 @@ from .data_collator import (
     DataCollatorForTokenClassification,
     DataCollatorForWholeWordMask,
     DataCollatorWithPadding,
-    DefaultDataCollator,
     default_data_collator,
 )
 from .metrics import glue_compute_metrics, xnli_compute_metrics

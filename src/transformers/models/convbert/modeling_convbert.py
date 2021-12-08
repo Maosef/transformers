@@ -202,7 +202,7 @@ class ConvBertEmbeddings(nn.Module):
         if version.parse(torch.__version__) > version.parse("1.6.0"):
             self.register_buffer(
                 "token_type_ids",
-                torch.zeros(self.position_ids.size(), dtype=torch.long),
+                torch.zeros(self.position_ids.size(), dtype=torch.long, device=self.position_ids.device),
                 persistent=False,
             )
 
@@ -775,8 +775,7 @@ class ConvBertModel(ConvBertPreTrainedModel):
 
         self.encoder = ConvBertEncoder(config)
         self.config = config
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     def get_input_embeddings(self):
         return self.embeddings.word_embeddings
@@ -887,8 +886,7 @@ class ConvBertForMaskedLM(ConvBertPreTrainedModel):
         self.generator_predictions = ConvBertGeneratorPredictions(config)
 
         self.generator_lm_head = nn.Linear(config.embedding_size, config.vocab_size)
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     def get_output_embeddings(self):
         return self.generator_lm_head
@@ -997,8 +995,7 @@ class ConvBertForSequenceClassification(ConvBertPreTrainedModel):
         self.convbert = ConvBertModel(config)
         self.classifier = ConvBertClassificationHead(config)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     @add_start_docstrings_to_model_forward(CONVBERT_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
     @add_code_sample_docstrings(
@@ -1093,8 +1090,7 @@ class ConvBertForMultipleChoice(ConvBertPreTrainedModel):
         self.sequence_summary = SequenceSummary(config)
         self.classifier = nn.Linear(config.hidden_size, 1)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     @add_start_docstrings_to_model_forward(
         CONVBERT_INPUTS_DOCSTRING.format("batch_size, num_choices, sequence_length")
@@ -1191,8 +1187,7 @@ class ConvBertForTokenClassification(ConvBertPreTrainedModel):
         self.dropout = nn.Dropout(classifier_dropout)
         self.classifier = nn.Linear(config.hidden_size, config.num_labels)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     @add_start_docstrings_to_model_forward(CONVBERT_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
     @add_code_sample_docstrings(
@@ -1279,8 +1274,7 @@ class ConvBertForQuestionAnswering(ConvBertPreTrainedModel):
         self.convbert = ConvBertModel(config)
         self.qa_outputs = nn.Linear(config.hidden_size, config.num_labels)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     @add_start_docstrings_to_model_forward(CONVBERT_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
     @add_code_sample_docstrings(

@@ -242,10 +242,9 @@ class T5LayerNorm(nn.Module):
         variance = hidden_states.to(torch.float32).pow(2).mean(-1, keepdim=True)
         hidden_states = hidden_states * torch.rsqrt(variance + self.variance_epsilon)
 
-        # convert into half-precision if necessary
-        if self.weight.dtype in [torch.float16, torch.bfloat16]:
-            hidden_states = hidden_states.to(self.weight.dtype)
-
+        # convert into float16 if necessary
+        if self.weight.dtype == torch.float16:
+            hidden_states = hidden_states.to(torch.float16)
         return self.weight * hidden_states
 
 
@@ -815,8 +814,7 @@ class T5Stack(T5PreTrainedModel):
         self.final_layer_norm = T5LayerNorm(config.d_model, eps=config.layer_norm_epsilon)
         self.dropout = nn.Dropout(config.dropout_rate)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
         # Model parallel
         self.model_parallel = False
         self.device_map = None
@@ -1269,8 +1267,7 @@ class T5Model(T5PreTrainedModel):
         decoder_config.num_layers = config.num_decoder_layers
         self.decoder = T5Stack(decoder_config, self.shared)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
         # Model parallel
         self.model_parallel = False
@@ -1460,8 +1457,7 @@ class T5ForConditionalGeneration(T5PreTrainedModel):
 
         self.lm_head = nn.Linear(config.d_model, config.vocab_size, bias=False)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
         # Model parallel
         self.model_parallel = False
@@ -1735,8 +1731,7 @@ class T5EncoderModel(T5PreTrainedModel):
         encoder_config.is_encoder_decoder = False
         self.encoder = T5Stack(encoder_config, self.shared)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
         # Model parallel
         self.model_parallel = False

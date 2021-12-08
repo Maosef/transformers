@@ -110,15 +110,6 @@ class MBartTokenizer:
         requires_backends(cls, ["sentencepiece"])
 
 
-class MLukeTokenizer:
-    def __init__(self, *args, **kwargs):
-        requires_backends(self, ["sentencepiece"])
-
-    @classmethod
-    def from_pretrained(cls, *args, **kwargs):
-        requires_backends(cls, ["sentencepiece"])
-
-
 class MT5Tokenizer:
     def __init__(self, *args, **kwargs):
         requires_backends(self, ["sentencepiece"])

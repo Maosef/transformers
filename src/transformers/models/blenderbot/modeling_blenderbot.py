@@ -656,9 +656,8 @@ class BlenderbotEncoder(BlenderbotPreTrainedModel):
         self.layers = nn.ModuleList([BlenderbotEncoderLayer(config) for _ in range(config.encoder_layers)])
         self.layer_norm = nn.LayerNorm(config.d_model)
 
+        self.init_weights()
         self.gradient_checkpointing = False
-        # Initialize weights and apply final processing
-        self.post_init()
 
     def forward(
         self,
@@ -822,9 +821,8 @@ class BlenderbotDecoder(BlenderbotPreTrainedModel):
         self.layers = nn.ModuleList([BlenderbotDecoderLayer(config) for _ in range(config.decoder_layers)])
         self.layer_norm = nn.LayerNorm(config.d_model)
 
+        self.init_weights()
         self.gradient_checkpointing = False
-        # Initialize weights and apply final processing
-        self.post_init()
 
     def get_input_embeddings(self):
         return self.embed_tokens
@@ -1085,8 +1083,7 @@ class BlenderbotModel(BlenderbotPreTrainedModel):
         self.encoder = BlenderbotEncoder(config, self.shared)
         self.decoder = BlenderbotDecoder(config, self.shared)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     @classmethod
     def from_pretrained(cls, pretrained_model_name_or_path: Optional[Union[str, os.PathLike]], *model_args, **kwargs):
@@ -1223,8 +1220,7 @@ class BlenderbotForConditionalGeneration(BlenderbotPreTrainedModel):
         self.register_buffer("final_logits_bias", torch.zeros((1, self.model.shared.num_embeddings)))
         self.lm_head = nn.Linear(config.d_model, self.model.shared.num_embeddings, bias=False)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     @classmethod
     def from_pretrained(cls, pretrained_model_name_or_path: Optional[Union[str, os.PathLike]], *model_args, **kwargs):
@@ -1408,8 +1404,7 @@ class BlenderbotForCausalLM(BlenderbotPreTrainedModel):
 
         self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
 
-        # Initialize weights and apply final processing
-        self.post_init()
+        self.init_weights()
 
     def get_input_embeddings(self):
         return self.model.decoder.embed_tokens
